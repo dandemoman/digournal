@@ -47,11 +47,14 @@ function Tree(data, { // data is either tabular (array of objects) or hierarchy 
       : id != null || parentId != null ? d3.stratify().id(id).parentId(parentId)(data)
       : d3.hierarchy(data, children);
 
+  console.log("Root hierarchy: ", root);
+
   // Sort the nodes.
   if (sort != null) root.sort(sort);
 
   // Compute labels and titles.
   const descendants = root.descendants();
+  console.log("Descendants: ", descendants);
   const L = label == null ? null : descendants.map(d => label(d.data, d));
 
   // Compute the layout.
@@ -85,7 +88,7 @@ function Tree(data, { // data is either tabular (array of objects) or hierarchy 
     .join("a")
       .attr("xlink:href", link == null ? null : d => link(d.data, d))
       .attr("target", link == null ? null : linkTarget)
-      .attr("transform", d => `rotate(${d.x * 180 / Math.PI}) translate(${d.y},0)`);
+      .attr("transform", d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0)`);
     //   .attr("transform", d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0)`);
 
   node.append("circle")
@@ -105,19 +108,24 @@ function Tree(data, { // data is either tabular (array of objects) or hierarchy 
       .attr("stroke-width", haloWidth)
       .text((d, i) => L[i]);
 
+  console.log("Root: ", root);
   return svg.node();
 }
 
-mainTree = Tree(data, {
+
+
+
+const response = await fetch(dataFile); // Fetch the file
+console.log("Data fetched....");
+const data = await response.json();
+console.log("Data is parsed.... ", data);
+
+var mainTree = Tree(data, {
     width:800,
     height:600,
     label: d => d.name,
     fill:"#000000", stroke:"#404040", r:3, padding:2, margin:20
 });
-
-
-const response = await fetch(dataFile); // Fetch the file
-const data = await response.json();
 
 var myDiv = document.querySelector(".forTree");
 myDiv.appendChild(mainTree);
